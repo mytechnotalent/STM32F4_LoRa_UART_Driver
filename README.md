@@ -4,7 +4,7 @@
 
 <br>
 
-# STM32F4 LoRa UART Driver
+# STM32F4 LoRa UART Driver - PRE=RELEASE (ACTIVE BUGS)
 An STM32F4, RYLR998 LoRa UART driver written entirely in Assembler.
 
 <br>
