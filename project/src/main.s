@@ -1152,7 +1152,15 @@ GPIOB_PB5_Read_Value:
   POP   {R4-R12, LR}                                       // pop registers R4-R12, LR from the stack
   BX    LR                                                 // return to caller
 
-
+/**
+ * @brief  Enable USART2 transmission.
+ *
+ *         This function enables transmission on USART2 by setting the TE bit in the USART2_CR1 register
+ *         and clearing the RE bit to disable reception.
+ *
+ * @param  None
+ * @retval None
+ */
 USART2_Transmit_Enable:
   PUSH  {R4-R12, LR}                                       // push registers R4-R12, LR to the stack
   LDR   R4, =0x4000440C                                    // load address of USART2_CR1 register
@@ -1163,7 +1171,15 @@ USART2_Transmit_Enable:
   POP   {R4-R12, LR}                                       // pop registers R4-R12, LR from the stack
   BX    LR                                                 // return to caller
 
-
+/**
+ * @brief  Enable USART2 reception.
+ *
+ *         This function enables reception on USART2 by setting the RE bit in the USART2_CR1 register
+ *         and clearing the TE bit to disable transmission.
+ *
+ * @param  None
+ * @retval None
+ */
 USART2_Receive_Enable:
   PUSH  {R4-R12, LR}                                       // push registers R4-R12, LR to the stack
   LDR   R4, =0x4000440C                                    // load address of USART2_CR1 register
@@ -1173,7 +1189,6 @@ USART2_Receive_Enable:
   STR   R5, [R4]                                           // store value into USART2_CR1 register
   POP   {R4-R12, LR}                                       // pop registers R4-R12, LR from the stack
   BX    LR                                                 // return to caller
-
 
 /**
  * @brief  Delay for approximately 30 microseconds.
