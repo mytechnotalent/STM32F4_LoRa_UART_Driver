@@ -21,7 +21,7 @@ An STM32F4, RYLR998 LoRa UART driver written entirely in Assembler.
  *
  * AUTHOR: Kevin Thomas
  * CREATION DATE: March 15, 2024
- * UPDATE DATE: March 29, 2024
+ * UPDATE DATE: March 30, 2024
  *
  * ASSEMBLE AND LINK w/ SYMBOLS:
  * 1. arm-none-eabi-as -g main.s -o main.o
@@ -298,6 +298,8 @@ main:
   BL    SSD1306_Init                                       // call function
   BL    SSD1306_Turn_On_Display                            // call function
   BL    USART2_Enable                                      // call function
+  BL    USART2_Transmit_Enable                             // call function
+  BL    USART2_Receive_Enable                              // call function
   //BL    LoRa_Setup                                       // call function
   BL    Loop                                               // call function
   POP   {R4-R12, LR}                                       // pop registers R4-R12, LR from the stack
@@ -725,6 +727,26 @@ USART2_Receive_Character:
   LDR   R4, =0x40004404                                    // load value inside USART2_DR register
   LDRB  R0, [R4]                                           // load byte inside USART2_DR register
 .USART2_Receive_Character_Exit:
+  POP   {R4-R12, LR}                                       // pop registers R4-R12, LR from the stack
+  BX    LR                                                 // return to caller
+
+/**
+ * @brief  Clear USART2 buffer.
+ *
+ *         This function clears the receive buffer of USART2 by reading the data register (USART2_DR)
+ *         and discarding its content.
+ *
+ * @param  None
+ * @retval None
+ */
+USART2_Clear_Buffer:
+  PUSH  {R4-R12, LR}                                       // push registers R4-R12, LR to the stack
+  LDR   R4, =0x40004400                                    // load address of USART2_SR register
+  LDR   R5, [R4]                                           // load value inside USART_SR register
+  LDR   R4, =0x40004404                                    // load value inside USART2_DR register
+  LDR   R5, [R4]                                           // load byte inside USART2_DR register          
+  MOV   R5, #0                                             // move zero into R5
+  STR   R5, [R4]                                           // store value into USART2_DR register
   POP   {R4-R12, LR}                                       // pop registers R4-R12, LR from the stack
   BX    LR                                                 // return to caller
 
@@ -1180,7 +1202,6 @@ USART2_Transmit_Enable:
   LDR   R4, =0x4000440C                                    // load address of USART2_CR1 register
   LDR   R5, [R4]                                           // load value inside USART2_CR1 register
   ORR   R5, #(1<<3)                                        // set the TE bit
-  BIC   R5, #(1<<2)                                        // clear the RE bit
   STR   R5, [R4]                                           // store value into USART2_CR1 register
   POP   {R4-R12, LR}                                       // pop registers R4-R12, LR from the stack
   BX    LR                                                 // return to caller
@@ -1198,7 +1219,6 @@ USART2_Receive_Enable:
   PUSH  {R4-R12, LR}                                       // push registers R4-R12, LR to the stack
   LDR   R4, =0x4000440C                                    // load address of USART2_CR1 register
   LDR   R5, [R4]                                           // load value inside USART2_CR1 register
-  BIC   R5, #(1<<3)                                        // clear the TE bit
   ORR   R5, #(1<<2)                                        // set the RE bit
   STR   R5, [R4]                                           // store value into USART2_CR1 register
   POP   {R4-R12, LR}                                       // pop registers R4-R12, LR from the stack
@@ -1314,7 +1334,7 @@ Menu:
  */
 Generate_Message:
   PUSH  {R4-R12, LR}                                       // push registers R4-R12, LR to the stack
-  BL    USART2_Transmit_Enable                             // call function
+  BL    USART2_Clear_Buffer                                // call function
   BL    Thirty_Microsecond_Delay                           // call function
   BL    Thirty_Microsecond_Delay                           // call function
   MOV   R4, #0                                             // set array index to zero
@@ -1455,9 +1475,6 @@ Generate_Message:
  */
 Receive_Message:
   PUSH  {R4-R12, LR}                                       // push registers R4-R12, LR to the stack 
-  BL    USART2_Receive_Enable                              // call function
-  BL    Thirty_Microsecond_Delay                           // call function
-  BL    Thirty_Microsecond_Delay                           // call function
   LDR   R4, =message_full_receive_array                    // load addr of message full receive array
   MOV   R5, #-1                                            // set counter                                                                             
 .Receive_Message_Loop:
@@ -1467,7 +1484,7 @@ Receive_Message:
   BL    USART2_Receive_Character                           // call function
   STRB  R0, [R4, R5]                                       // store char into message_full_receive_array, offset R5
   B     .Receive_Message_Loop                              // branch
-.Receive_Message_Exit:
+.Receive_Message_Exit:  
   POP   {R4-R12, LR}                                       // pop registers R4-R12, LR from the stack
   BX    LR                                                 // return to caller
 
@@ -1484,14 +1501,26 @@ Parse_Message:
   PUSH  {R4-R12, LR}                                       // push registers R4-R12, LR to the stack
   LDR   R4, =message_full_receive_array                    // load addr of message full receive array
   LDR   R5, =message_parsed_receive_array                  // load addr of message parsed receive array
-  LDRB  R6, [R4, #9]                                       // load offset 9 of message full receive array
-  STRB  R6, [R5, #0]                                       // store into message_parsed_receive_array
-  LDRB  R6, [R4, #28]                                      // load offset 28 of message full receive array
-  STRB  R6, [R5, #1]                                       // store into message_parsed_receive_array
-  LDRB  R6, [R4, #47]                                      // load offset 47 of message full receive array
-  STRB  R6, [R5, #2]                                       // store into message_parsed_receive_array
-  LDRB  R6, [R4, #66]                                      // load offset 66 of message full receive array
-  STRB  R6, [R5, #3]                                       // store into message_parsed_receive_array
+  MOV   R7, #2                                             // set counter
+.Parse_Message_Check_Third_Byte:
+  LDRB  R6, [R4, R7]                                       // load first byte into R6
+  CMP   R6, #0x43                                          // check to make sure it is 'C'
+  BEQ   .Parse_Message_Loop                                // branch if equal
+  ADD   R7, #1                                             // increment counter
+  B     .Parse_Message_Check_Third_Byte                    // branch
+.Parse_Message_Loop:
+  ADD   R8, R7, #7                                         // increment counter to get first correct character
+  LDRB  R6, [R4, R8]                                       // load offset of message full receive array
+  STRB  R6, [R5, #0]                                       // store byte message_parsed_receive_array
+  ADD   R8, R7, #26                                        // increment counter to get second correct character
+  LDRB  R6, [R4, R8]                                       // load offset 28 of message full receive array
+  STRB  R6, [R5, #1]                                       // store byte message_parsed_receive_array
+  ADD   R8, R7, #45                                        // increment counter to get second correct character
+  LDRB  R6, [R4, R8]                                       // load offset of message full receive array
+  STRB  R6, [R5, #2]                                       // store byte message_parsed_receive_array
+  ADD   R8, R7, #64                                        // increment counter to get second correct character
+  LDRB  R6, [R4, R8]                                       // load offset of message full receive array
+  STRB  R6, [R5, #3]                                       // store byte message_parsed_receive_array
 .Parse_Message_Exit:
   POP   {R4-R12, LR}                                       // pop registers R4-R12, LR from the stack
   BX    LR                                                 // return to caller 
