@@ -73,5 +73,4 @@ SECTIONS
     _ebss = .;                                             /* define a global symbol at bss end */
     __bss_end__ = _ebss;
   } >RAM
-
 }
