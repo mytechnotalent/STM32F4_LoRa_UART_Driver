@@ -1234,7 +1234,7 @@ USART2_Receive_Enable:
  */
 Thirty_Microsecond_Delay:
   PUSH  {R4-R12, LR}                                       // push registers R4-R12, LR to the stack 
-  MOV   R4, #0x7                                           // number of loops
+  MOV   R4, #7                                             // number of loops
 .Thirty_Microsecond_Delay_Outer_Loop:
   MOV   R5, #0xFFFF                                        // set initial delay count
 .Thirty_Microsecond_Delay_Inner_Loop:
