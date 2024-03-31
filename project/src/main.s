@@ -7,7 +7,7 @@
  *
  * AUTHOR: Kevin Thomas
  * CREATION DATE: March 15, 2024
- * UPDATE DATE: March 30, 2024
+ * UPDATE DATE: March 31, 2024
  *
  * ASSEMBLE AND LINK w/ SYMBOLS:
  * 1. arm-none-eabi-as -g main.s -o main.o
