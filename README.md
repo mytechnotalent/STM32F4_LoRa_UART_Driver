@@ -1,6 +1,7 @@
 <img src="https://github.com/mytechnotalent/STM32F4_LoRa_UART_Driver/blob/main/STM32F4_LoRa_UART_Driver.png?raw=true">
 
 ## FREE Reverse Engineering Self-Study Course [HERE](https://github.com/mytechnotalent/Reverse-Engineering-Tutorial)
+### VIDEO PROMO [HERE](https://www.youtube.com/watch?v=aD7X9sXirF8)
 
 <br>
 
@@ -2048,5 +2049,5 @@ message_parsed_receive_array:
 
 <br>
 
-## License
+# License
 [MIT](https://raw.githubusercontent.com/mytechnotalent/STM32F4_LoRa_UART_Driver/main/LICENSE)
